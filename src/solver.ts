@@ -1,39 +1,29 @@
-import {
-  Letter,
-  LetterArray,
-  LETTERS_IN_ALPHABET,
-  WORD_LENGTH,
-  letterCounter,
-  sortSolutionsByScore,
-  scoreWord,
-  getWordLettersAsArray
-} from './processingHelper'
+import { Letter, sortSolutionsMapByScore, getWordLettersAsArray, WORD_LENGTH } from './processingHelper'
+import { getWordsByCombinedYellowOrGreenFreq } from './listProcessor'
+import { GameState, getGrayLetters, getGreenString, getYellowPatterns } from './game'
 
-export const createFrequencyArray = (answers: string[]): LetterArray<number> => {
-  const emptyLetterArray = new Array(LETTERS_IN_ALPHABET).fill(0)
-  const numberOfLettersInSample = answers.length * 5
+export const getSolutions = (list: string[], game: GameState) => {
+  const greenString = getGreenString(game.guesses[game.guesses.length - 1])
+  const yellowPatterns = getYellowPatterns(game)
+  const grayLetters = getGrayLetters(game, greenString, yellowPatterns)
+  let matchingSolutions = getMatchingSolutions(list, greenString, yellowPatterns, grayLetters)
 
-  const letterCount = answers.reduce(letterCounter, emptyLetterArray)
-
-  const frequencyArray = letterCount.map((count) => {
-    return (1.0 * count) / numberOfLettersInSample
+  matchingSolutions = matchingSolutions.filter(([word]) => {
+    let result = true
+    game.guesses.forEach((guess) => {
+      if (guess.word === word) {
+        result = false
+      }
+    })
+    return result
   })
-
-  return frequencyArray
+  // console.log(game.targetWord, greenString, yellowPatterns, grayLetters)
+  // console.log(matchingSolutions)
+  return matchingSolutions
 }
 
-export const getTopWords = (sourceArray: string[], frequencyArray: LetterArray<number>, excludeLetters?: Letter[]) => {
-  const possibleWordsScoreMap = new Map<string, number>()
-  sourceArray.forEach((possibleWord) => {
-    possibleWordsScoreMap.set(possibleWord, scoreWord(possibleWord, frequencyArray, excludeLetters))
-  })
-
-  return sortSolutionsByScore(possibleWordsScoreMap)
-}
-
-export const solve = (
+export const getMatchingSolutions = (
   sourceArray: string[],
-  frequencyArray: LetterArray<number>,
   greenString: string,
   yellowPatterns: [Letter, number][],
   excludeLetters: Letter[]
@@ -41,10 +31,10 @@ export const solve = (
   const possibleSolutionsMap = new Map<string, number>()
   sourceArray.forEach((possibleSolution) => {
     if (wordMatchesConditions(possibleSolution, greenString, yellowPatterns, excludeLetters)) {
-      possibleSolutionsMap.set(possibleSolution, scoreWord(possibleSolution, frequencyArray))
+      possibleSolutionsMap.set(possibleSolution, getWordsByCombinedYellowOrGreenFreq(sourceArray, possibleSolution))
     }
   })
-  return sortSolutionsByScore(possibleSolutionsMap)
+  return sortSolutionsMapByScore(possibleSolutionsMap)
 }
 
 const wordMatchesConditions = (
@@ -72,7 +62,7 @@ const matchesGreenString = (word: string, greenString: string): boolean => {
 const hasAllYellowLetters = (word: string, yellowLetters: Letter[], greenString: string): boolean => {
   const nonGreenLetters = getNonGreenLetters(word, greenString)
 
-  const yellowLettersNotInWord = [...yellowLetters]
+  const yellowLettersNotInWord = [...new Set(yellowLetters)]
   nonGreenLetters.forEach((nonGreenLetter) => {
     if (yellowLettersNotInWord.includes(nonGreenLetter)) {
       yellowLettersNotInWord.splice(yellowLettersNotInWord.indexOf(nonGreenLetter), 1)

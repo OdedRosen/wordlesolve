@@ -4,9 +4,14 @@ export type LetterArray<Type> = Type[]
 export const LETTERS_IN_ALPHABET = 26
 export const WORD_LENGTH = 5
 
-export const sortSolutionsByScore = (wordScoreMap: Map<string, number>): [string, number][] => {
+export const sortSolutionsMapByScore = (wordScoreMap: Map<string, number>): [string, number][] => {
   const unsortedWordScoreMap = [...wordScoreMap]
   const wordScoreMapSortedByScore = unsortedWordScoreMap.sort(([, score1], [, score2]) => score2 - score1)
+  return wordScoreMapSortedByScore
+}
+
+export const sortSolutionsListByScore = (wordScoreList: [string, number][]): [string, number][] => {
+  const wordScoreMapSortedByScore = wordScoreList.sort(([, score1], [, score2]) => score2 - score1)
   return wordScoreMapSortedByScore
 }
 
@@ -16,11 +21,6 @@ export const letterCounter = (letterArray: LetterArray<number>, word: string): L
     letterArray[getLetterIndex(letter)]++
   })
   return letterArray
-}
-
-export const getLetterIndex = (letter: Letter): number => {
-  const letterAsciiCode = letter.charCodeAt(0)
-  return letterAsciiCode - 97
 }
 
 export const scoreWord = (word: string, frequencyArray: LetterArray<number>, excludeLetters?: Letter[]): number => {
@@ -39,4 +39,29 @@ export const scoreWord = (word: string, frequencyArray: LetterArray<number>, exc
 
 export const getWordLettersAsArray = (word: string): Letter[] => {
   return [...word]
+}
+
+export const hasAnyLetter = (word: string, letters: Letter[]): boolean => {
+  const wordLetters = getWordLettersAsArray(word)
+  let result = false
+  wordLetters.forEach((wordLetter) => {
+    if (letters.includes(wordLetter)) {
+      result = true
+    }
+  })
+  return result
+}
+
+export const hasGreenLetter = (word: string, greenString: string): boolean => {
+  for (let i = 0; i < word.length; i++) {
+    if (word.charAt(i) === greenString.charAt(i)) {
+      return true
+    }
+  }
+  return false
+}
+
+const getLetterIndex = (letter: Letter): number => {
+  const letterAsciiCode = letter.charCodeAt(0)
+  return letterAsciiCode - 97
 }
