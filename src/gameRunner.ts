@@ -37,6 +37,13 @@ export const addGuessFeedback = (game: GameState, guess: Guess): void => {
 export const createGuessFromUserFeedback = (word: string, greenString: string, yellowString: string): Guess => {
   const yellowLocations = yellowString.split(' ').map((locStr) => parseInt(locStr, 10) - 1)
   const greenLocations = greenString.split(' ').map((locStr) => parseInt(locStr, 10) - 1)
+  if (isNaN(yellowLocations[0])) {
+    yellowLocations.pop()
+  }
+  if (isNaN(greenLocations[0])) {
+    greenLocations.pop()
+  }
+
   const guess: Guess = {
     word,
     yellowLocations,
