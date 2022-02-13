@@ -19,6 +19,9 @@ const runGame = async (): Promise<void> => {
     isDone = game.guesses[game.guesses.length - 1].greenLocations.length === 5
   }
 
+  if (isDone) {
+    console.log('Woohoo!')
+  }
   rl.close()
 }
 

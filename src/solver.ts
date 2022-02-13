@@ -1,5 +1,5 @@
 import { Letter, sortSolutionsMapByScore, getWordLettersAsArray, WORD_LENGTH } from './processingHelper'
-import { getWordsByCombinedYellowOrGreenFreq } from './listProcessor'
+import { getWordsByCombinedYellowOrGreenFreq } from './scorers'
 import { GameState, getGrayLetters, getGreenString, getYellowPatterns } from './game'
 
 export const getSolutions = (list: string[], game: GameState) => {
@@ -17,8 +17,6 @@ export const getSolutions = (list: string[], game: GameState) => {
     })
     return result
   })
-  // console.log(game.targetWord, greenString, yellowPatterns, grayLetters)
-  // console.log(matchingSolutions)
   return matchingSolutions
 }
 

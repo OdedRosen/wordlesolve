@@ -16,8 +16,9 @@ const playWord = (
   addGuess(game, initialWord)
   const memoCode = getGuessPrintCode(game.guesses[0])
   let chosenSolution = ''
-  let solutionsFromFullList
-  let solutionsFromAnswersList
+  let solutionsFromFullList: [string, number][] = []
+  let solutionsFromAnswersList: [string, number][] = []
+
   if (memo.has(memoCode) || game.guesses[0].greenLocations.length === 5) {
     chosenSolution = memo.get(memoCode) || ''
   } else {
@@ -68,6 +69,5 @@ export const evaluateStartingWord = (startingWord: string, guessThreshold: numbe
     attemptHistogram[gameResult.guesses.length - 1]++
   })
 
-  console.log(attemptHistogram)
   return attemptHistogram
 }
