@@ -1,6 +1,6 @@
 import { getWordLettersAsArray, Letter, WORD_LENGTH } from './processingHelper'
 
-interface Guess {
+export interface Guess {
   word: string
   yellowLocations: number[]
   greenLocations: number[]
@@ -23,6 +23,13 @@ export const initializeGameWithGivenWord = (word: string): GameState => {
   return {
     guesses: [],
     targetWord: word
+  }
+}
+
+export const initializeGameWithUnknownWord = (): GameState => {
+  return {
+    guesses: [],
+    targetWord: ''
   }
 }
 
@@ -82,7 +89,7 @@ export const printGame = (game: GameState): void => {
     gameString += getGuessPrintCode(guess) + ' '
   })
 
-  console.log(gameString)
+  console.log(gameString, game.guesses.length)
 }
 
 export const getGreenString = (lastGuess: Guess): string => {

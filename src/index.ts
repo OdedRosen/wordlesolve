@@ -1,59 +1,25 @@
-import { answers } from '../assets/wordleAnswers'
-import { possible } from '../assets/wordlePossible'
-import { addGuess, GameState, initializeGameWithGivenWord, printGame } from './game'
-import { getSolutions } from './solver'
+import readline from 'readline-promise'
+import { stdin as input, stdout as output } from 'node:process'
+import { addGuessFeedback, createGuessFromUserFeedback, initiateGame, makeGuess } from './gameRunner'
 
-// Super parameters:
-const INITIAL_WORD = 'saice'
-const GUESS_THRESHOLD = 10
+const runGame = async (): Promise<void> => {
+  const rl = readline.createInterface({ input, output, terminal: true })
+  const game = initiateGame()
 
-const fullList = [...answers, ...possible]
-const games: GameState[] = []
+  let isDone = false
+  while (!isDone) {
+    const guessWord = makeGuess(game)
+    console.log(`Guess: \x1b[1m${guessWord}\x1b[0m`)
+    const greenString = await rl.questionAsync('Location of \x1b[32mGREEN\x1b[0m letters (1-5, separated by space): ')
+    const yellowString = await rl.questionAsync('Location of \x1b[33mYELLOW\x1b[0m letters (1-5, separated by space): ')
 
-const playWord = (word: string): GameState => {
-  const game = initializeGameWithGivenWord(word)
+    const guessFeedback = createGuessFromUserFeedback(guessWord, greenString, yellowString)
+    addGuessFeedback(game, guessFeedback)
 
-  console.log('')
-  console.log(`Target word: ${game.targetWord}`)
-
-  addGuess(game, INITIAL_WORD)
-
-  let solutionsFromFullList = getSolutions(fullList, game)
-  let solutionsFromAnswersList = getSolutions(answers, game)
-
-  while (game.guesses[game.guesses.length - 1].greenLocations.length < 5 && game.guesses.length < 7) {
-    if (solutionsFromAnswersList.length <= GUESS_THRESHOLD) {
-      addGuess(game, solutionsFromAnswersList[0][0])
-    } else {
-      addGuess(game, solutionsFromFullList[0][0])
-    }
-
-    solutionsFromFullList = getSolutions(fullList, game)
-    solutionsFromAnswersList = getSolutions(answers, game)
+    isDone = game.guesses[game.guesses.length - 1].greenLocations.length === 5
   }
 
-  printGame(game)
-  if (game.guesses[game.guesses.length - 1].greenLocations.length === 5) {
-    console.log(`done in ${game.guesses.length} guesses`)
-  } else {
-    console.log(`failed`)
-  }
-
-  return game
+  rl.close()
 }
 
-const first15words = [...answers]
-first15words.splice(100)
-
-first15words.forEach((word) => {
-  const gameResult = playWord(word)
-  games.push(gameResult)
-})
-
-const attemptHistogram: number[] = Array(6).fill(0)
-
-games.forEach((game) => {
-  attemptHistogram[game.guesses.length - 1]++
-})
-
-console.log(attemptHistogram)
+runGame()
